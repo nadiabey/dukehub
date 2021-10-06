@@ -1,0 +1,15 @@
+initiating:
+sqlite3 test.db
+.read '|base.sql'
+
+merging:
+sqlite3 test.db
+.headers on
+.mode csv
+.output testdata.csv
+.read '|merge.sql'
+
+merge.sql should contain:
+WITH (SELECT * FROM dept UNION ALL...) AS data
+SELECT d.course_num, dept, catalog_num, course_name, section_type, section_num,
+open_seats, total_seats, reserves, timestamp FROM data d, sections s, names n;
