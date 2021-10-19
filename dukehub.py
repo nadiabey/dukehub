@@ -10,7 +10,7 @@ chrome_options = Options()
 chrome_options.add_argument("--headless")
 chrome_options.add_argument("--window-size=1920x1080")
 driver = webdriver.Chrome(r"/Users/nadiabey/Documents/Duke/Chronicle/dukehub/chromedriver", options=chrome_options)
-conn = sqlite3.connect("testrun.db")
+conn = sqlite3.connect("spring22.db")
 driver.implicitly_wait(10)
 
 
@@ -92,8 +92,8 @@ def depttable(dept: str):
     course_num INTEGER NOT NULL,
     open_seats INTEGER NOT NULL,
     total_seats INTEGER NOT NULL,
-    percentage REAL NOT NULL,
     reserves TEXT NOT NULL,
+    percentage REAL NOT NULL,
     time_recorded TEXT NOT NULL,
     PRIMARY KEY (course_num, time_recorded))""".format(dept)
     if conn is not None:
@@ -229,6 +229,7 @@ def get_class(x: str):
     details = [x.text for x in
                driver.find_elements_by_xpath("//div[contains(@class, 'MuiGrid-root MuiGrid-container')]")]
     cn = driver.find_element_by_xpath("/html/body/div[1]/main/div/form/div/div[7]/div/div/div/input")
+    # cn is new version of classNumber because page changed
     for i in range(len(str(x))):
         cn.send_keys(Keys.BACKSPACE)
     try:
@@ -262,10 +263,13 @@ def get_names(term, career):
     cur = conn.cursor()
     cur.execute("""SELECT course_num from sections""")
     nums = [x[0] for x in cur.fetchall()]
+    cur.execute("""SELECT course_num from names""")
+    exclude = [x[0] for x in cur.fetchall()]
+    queries = [x for x in nums if x not in exclude]
     print('start time: ', str(datetime.datetime.now()))
     first = time.time()
     pool = multiprocessing.Pool()
-    pool.starmap(run_indiv, [(term, career, x) for x in nums])
+    pool.starmap(run_indiv, [(term, career, x) for x in queries])
     pool.close()
     driver.quit()
     last = time.time()
@@ -286,16 +290,17 @@ def get_data(term: str, career: str, x: list):
 
 
 if __name__ == '__main__':
-    listy = [x[:-1] for x in open(r'/Users/nadiabey/PycharmProjects/classRegistration/fall21dept.txt', 'r').readlines()]
+    testy = ['AAAS -', 'BIOLOGY -', 'VMS -']
+    listy = [x[:-1] for x in open('spring22.txt', 'r').readlines()]
     prompt = input("Which code is being initiated? ")
     when = input("What term: ")
     who = input("What career: ")
     if prompt == "data":
         month = datetime.datetime.today().month
         day = datetime.datetime.today().day
-        while datetime.datetime.now() < datetime.datetime(2021, month, day, 23, 0):
+        while datetime.datetime.now() < datetime.datetime(2021, month, day, 17, 10):
             get_data(when, who, listy)
-            if datetime.datetime.now() > datetime.datetime(2021, month, day, 23, 10):
+            if datetime.datetime.now() > datetime.datetime(2021, month, day, 17, 10):
                 break
     if prompt == "names":
         get_names(when, who)
