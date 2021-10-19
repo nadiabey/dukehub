@@ -8,7 +8,10 @@ def getdb():
     and name <> 'sections' and name <> 'names'""")
     depts = [x[0] for x in cur.fetchall()]
     lines = ["SELECT * FROM {}".format(x) for x in depts]
+    print(".headers on\n.mode csv")
     for x in lines:
+        name = x[x.find("FROM") + 4:]
+        print(".output" + name + ".csv")
         print("WITH details(course_num, open_seats, total_seats, reserves, percentage, time_recorded) AS (" + x +
               ") SELECT details.course_num, dept, catalog_num, course_name, section_type, section_num, topic,"
               "open_seats, total_seats, reserves, time_recorded FROM details, sections, names "
