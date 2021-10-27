@@ -298,9 +298,9 @@ if __name__ == '__main__':
     if prompt == "data":
         month = datetime.datetime.today().month
         day = datetime.datetime.today().day
-        while datetime.datetime.now() < datetime.datetime(2021, month, day, 17, 10):
+        while datetime.datetime.now() < datetime.datetime(2021, month, day, 8, 0):
             get_data(when, who, listy)
-            if datetime.datetime.now() > datetime.datetime(2021, month, day, 17, 10):
+            if datetime.datetime.now() > datetime.datetime(2021, month, day, 8, 0):
                 break
     if prompt == "names":
         get_names(when, who)
